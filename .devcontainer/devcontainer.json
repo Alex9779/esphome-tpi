@@ -1,0 +1,32 @@
+{
+  "name": "ESPHome Development",
+  "image": "ghcr.io/esphome/esphome:latest",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "installOhMyZsh": true
+    },
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cpptools-extension-pack",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "esphome.esphome-vscode"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "C_Cpp.default.compilerPath": "/usr/bin/g++",
+        "C_Cpp.default.cStandard": "c11",
+        "C_Cpp.default.cppStandard": "c++17"
+      }
+    }
+  },
+  "forwardPorts": [6052],
+  "postCreateCommand": "pip install --upgrade esphome",
+  "remoteUser": "root"
+}

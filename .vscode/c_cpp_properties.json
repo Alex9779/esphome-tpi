@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "name": "ESPHome",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/components/**",
+                "/esphome"
+            ],
+            "defines": [
+                "USE_ESP32",
+                "USE_ARDUINO"
+            ],
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}",
+                    "/esphome"
+                ],
+                "limitSymbolsToIncludedHeaders": false
+            }
+        }
+    ],
+    "version": 4
+}

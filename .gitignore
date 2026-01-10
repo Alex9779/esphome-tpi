@@ -1,0 +1,109 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv
+
+# ESPHome
+.esphome/
+*.bin
+*.elf
+*.map
+secrets.yaml
+secrets.yml
+
+# C/C++
+*.o
+*.a
+*.obj
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+*.d
+*.dSYM/
+*.su
+
+# IDEs and Editors
+# VSCode - keep settings but ignore local state
+.vscode/*.log
+.vscode/.ropeproject
+.vscode/argv.json
+.vscode/commandHistory.json
+.vscode/workspaceStorage/
+
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Docker (if not using devcontainer)
+.dockerignore
+
+# Local environment files
+.env
+.env.local

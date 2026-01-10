@@ -1,0 +1,7 @@
+{
+  "name": "TPI Output",
+  "codeowners": ["@your-username"],
+  "documentation": "https://github.com/your-username/esphome-tpi",
+  "dependencies": ["binary_sensor", "datetime", "output", "time"],
+  "requirements": []
+}

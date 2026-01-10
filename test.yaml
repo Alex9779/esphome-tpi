@@ -1,0 +1,88 @@
+esphome:
+  name: tpi-test
+  friendly_name: TPI Test
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: ""
+
+wifi:
+  ap:
+    ssid: "TPI Test Fallback"
+    password: "12345678"
+
+# Time component required for datetime-based night off
+time:
+  - platform: homeassistant
+    id: ha_time
+
+# External component - use local version for testing
+external_components:
+  - source:
+      type: local
+      path: components
+    components: [ tpi ]
+
+# Test datetime components for dynamic scheduling
+datetime:
+  - platform: template
+    id: heating_off_time
+    type: time
+    name: "Heating Off Time"
+    optimistic: yes
+    initial_value: "22:00:00"
+    restore_value: true
+
+  - platform: template
+    id: heating_on_time
+    type: time
+    name: "Heating On Time"
+    optimistic: yes
+    initial_value: "06:00:00"
+    restore_value: true
+
+# Binary sensor for manual night off control
+binary_sensor:
+  - platform: gpio
+    pin: GPIO23
+    id: night_mode_switch
+    name: "Night Mode Switch"
+
+output:
+  # Basic TPI output
+  - platform: gpio
+    pin: GPIO19
+    id: relay_1
+  
+  - platform: tpi
+    id: tpi_heater
+    output: relay_1
+
+  # TPI with datetime components for night off
+  - platform: gpio
+    pin: GPIO18
+    id: relay_2
+  
+  - platform: tpi
+    id: tpi_heater_datetime
+    output: relay_2
+    night_off_start: heating_off_time
+    night_off_end: heating_on_time
+
+  # TPI with binary sensor for manual night off control
+  - platform: gpio
+    pin: GPIO21
+    id: relay_3
+  
+  - platform: tpi
+    id: tpi_heater_sensor
+    output: relay_3
+    night_off_sensor: night_mode_switch

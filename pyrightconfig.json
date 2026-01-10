@@ -1,0 +1,14 @@
+{
+    "include": [
+        "components"
+    ],
+    "extraPaths": [
+        "/esphome",
+        "/usr/local/lib/python3.12/site-packages"
+    ],
+    "pythonVersion": "3.12",
+    "pythonPlatform": "Linux",
+    "typeCheckingMode": "basic",
+    "useLibraryCodeForTypes": true,
+    "reportArgumentType": "none"
+}
