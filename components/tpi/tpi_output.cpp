@@ -50,6 +50,9 @@ void TPIOutput::loop() {
       this->binary_output_->set_state(false);
       ESP_LOGV(TAG, "Night off active - output forced OFF");
     }
+    // Reset cycle timing so we start fresh when night off ends
+    this->cycle_start_time_ = now;
+    this->last_change_time_ = now;
     return;
   }
 
