@@ -43,6 +43,8 @@ void TPIOutput::loop() {
     return;
   }
 
+  uint32_t now = millis();
+
   // Check if night off is active
   if (this->is_night_off_active_()) {
     if (this->output_state_) {
@@ -55,8 +57,6 @@ void TPIOutput::loop() {
     this->last_change_time_ = now;
     return;
   }
-
-  uint32_t now = millis();
   uint32_t time_in_cycle = now - this->cycle_start_time_;
   uint32_t time_since_change = now - this->last_change_time_;
 
