@@ -146,14 +146,12 @@ bool TPIOutput::is_night_off_active_() {
       return false;
     }
     
-    // Get datetime state from components
-    auto start_state = this->night_off_datetime_start_->state_as_esptime();
-    auto end_state = this->night_off_datetime_end_->state_as_esptime();
-    
-    if (!start_state.is_valid() || !end_state.is_valid()) {
-      ESP_LOGD(TAG, "Night off datetime: datetime states not valid (start: %d, end: %d)", 
-               start_state.is_valid(), end_state.is_valid());
-      return false; // If datetime not valid, don't block output
+    // Check if datetime entities have a state
+    if (!this->night_off_datetime_start_->has_state() || !this->night_off_datetime_end_->has_state()) {
+      ESP_LOGD(TAG, "Night off datetime: datetime entities have no state (start: %d, end: %d)", 
+               this->night_off_datetime_start_->has_state(), 
+               this->night_off_datetime_end_->has_state());
+      return false; // If datetime not set, don't block output
     }
     
     // Get current time
@@ -162,6 +160,10 @@ bool TPIOutput::is_night_off_active_() {
       ESP_LOGD(TAG, "Night off datetime: current time not valid");
       return false;
     }
+    
+    // Get datetime state from components - for TIME entities, only hour/minute/second are relevant
+    auto start_state = this->night_off_datetime_start_->state_as_esptime();
+    auto end_state = this->night_off_datetime_end_->state_as_esptime();
     
     uint32_t now_seconds = now.hour * 3600 + now.minute * 60 + now.second;
     uint32_t start_seconds = start_state.hour * 3600 + start_state.minute * 60 + start_state.second;
