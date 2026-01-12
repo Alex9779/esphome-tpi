@@ -136,11 +136,13 @@ bool TPIOutput::is_night_off_active_() {
   // Check datetime components
   if (this->use_night_off_datetime_) {
     if (this->night_off_datetime_start_ == nullptr || this->night_off_datetime_end_ == nullptr) {
+      ESP_LOGD(TAG, "Night off datetime: components are null");
       return false;
     }
     
     // Require time component for datetime-based night off
     if (this->time_ == nullptr) {
+      ESP_LOGD(TAG, "Night off datetime: time component is null");
       return false;
     }
     
@@ -149,12 +151,15 @@ bool TPIOutput::is_night_off_active_() {
     auto end_state = this->night_off_datetime_end_->state_as_esptime();
     
     if (!start_state.is_valid() || !end_state.is_valid()) {
+      ESP_LOGD(TAG, "Night off datetime: datetime states not valid (start: %d, end: %d)", 
+               start_state.is_valid(), end_state.is_valid());
       return false; // If datetime not valid, don't block output
     }
     
     // Get current time
     ESPTime now = this->time_->now();
     if (!now.is_valid()) {
+      ESP_LOGD(TAG, "Night off datetime: current time not valid");
       return false;
     }
     
@@ -162,11 +167,20 @@ bool TPIOutput::is_night_off_active_() {
     uint32_t start_seconds = start_state.hour * 3600 + start_state.minute * 60 + start_state.second;
     uint32_t end_seconds = end_state.hour * 3600 + end_state.minute * 60 + end_state.second;
     
+    ESP_LOGD(TAG, "Night off datetime check: now=%02d:%02d:%02d (%u), start=%02d:%02d:%02d (%u), end=%02d:%02d:%02d (%u)",
+             now.hour, now.minute, now.second, now_seconds,
+             start_state.hour, start_state.minute, start_state.second, start_seconds,
+             end_state.hour, end_state.minute, end_state.second, end_seconds);
+    
     // Handle wrap around midnight
     if (start_seconds > end_seconds) {
-      return now_seconds >= start_seconds || now_seconds < end_seconds;
+      bool active = now_seconds >= start_seconds || now_seconds < end_seconds;
+      ESP_LOGD(TAG, "Night off datetime (wrap): %s", active ? "ACTIVE" : "INACTIVE");
+      return active;
     } else {
-      return now_seconds >= start_seconds && now_seconds < end_seconds;
+      bool active = now_seconds >= start_seconds && now_seconds < end_seconds;
+      ESP_LOGD(TAG, "Night off datetime (no wrap): %s", active ? "ACTIVE" : "INACTIVE");
+      return active;
     }
   }
   
