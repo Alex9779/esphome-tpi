@@ -12,7 +12,6 @@ logger:
 
 # Enable Home Assistant API
 api:
-  password: ""
 
 wifi:
   ap:
@@ -74,6 +73,7 @@ output:
   - platform: tpi
     id: tpi_heater_datetime
     output: relay_2
+    time_id: ha_time
     night_off_start: heating_off_time
     night_off_end: heating_on_time
 

@@ -6,9 +6,14 @@
 #include "esphome/components/binary_sensor/binary_sensor.h"
 #include "esphome/core/time.h"
 #include "esphome/components/time/real_time_clock.h"
-#include "esphome/components/datetime/datetime_base.h"
 
 namespace esphome {
+
+// Forward declaration of datetime component
+namespace datetime {
+class DateTimeBase;
+}
+
 namespace tpi {
 
 class TPIOutput : public output::FloatOutput, public Component {
@@ -34,6 +39,7 @@ class TPIOutput : public output::FloatOutput, public Component {
     night_off_end_minute_ = minute;
     night_off_end_second_ = second;
   }
+#ifdef USE_DATETIME
   void set_night_off_datetime_start(datetime::DateTimeBase *dt) { 
     night_off_datetime_start_ = dt;
     use_night_off_datetime_ = true;
@@ -41,6 +47,7 @@ class TPIOutput : public output::FloatOutput, public Component {
   void set_night_off_datetime_end(datetime::DateTimeBase *dt) { 
     night_off_datetime_end_ = dt;
   }
+#endif
 
  protected:
   void write_state(float state) override;
@@ -68,10 +75,12 @@ class TPIOutput : public output::FloatOutput, public Component {
   uint8_t night_off_end_minute_{0};
   uint8_t night_off_end_second_{0};
   
+#ifdef USE_DATETIME
   // Night off datetime components
   bool use_night_off_datetime_{false};
   datetime::DateTimeBase *night_off_datetime_start_{nullptr};
   datetime::DateTimeBase *night_off_datetime_end_{nullptr};
+#endif
 };
 
 }  // namespace tpi

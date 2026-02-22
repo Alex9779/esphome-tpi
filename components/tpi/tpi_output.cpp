@@ -1,5 +1,8 @@
 #include "tpi_output.h"
 #include "esphome/core/log.h"
+#ifdef USE_DATETIME
+#include "esphome/components/datetime/datetime_base.h"
+#endif
 
 namespace esphome {
 namespace tpi {
@@ -24,9 +27,12 @@ void TPIOutput::dump_config() {
   if (this->night_off_sensor_ != nullptr) {
     ESP_LOGCONFIG(TAG, "  Night off sensor: configured");
   }
+#ifdef USE_DATETIME
   if (this->use_night_off_datetime_) {
     ESP_LOGCONFIG(TAG, "  Night off datetime: configured (using datetime components)");
-  } else if (this->use_night_off_time_) {
+  } else
+#endif
+  if (this->use_night_off_time_) {
     ESP_LOGCONFIG(TAG, "  Night off time: %02d:%02d:%02d - %02d:%02d:%02d",
                   this->night_off_start_hour_, this->night_off_start_minute_, this->night_off_start_second_,
                   this->night_off_end_hour_, this->night_off_end_minute_, this->night_off_end_second_);
@@ -133,6 +139,7 @@ bool TPIOutput::is_night_off_active_() {
     return this->night_off_sensor_->state;
   }
   
+#ifdef USE_DATETIME
   // Check datetime components
   if (this->use_night_off_datetime_) {
     if (this->night_off_datetime_start_ == nullptr || this->night_off_datetime_end_ == nullptr) {
@@ -185,6 +192,7 @@ bool TPIOutput::is_night_off_active_() {
       return active;
     }
   }
+#endif  // USE_DATETIME
   
   // Check time interval
   if (this->use_night_off_time_) {

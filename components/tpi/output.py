@@ -73,7 +73,8 @@ async def to_code(config):
         
         # Check if start/end are datetime component IDs or time strings
         if isinstance(start, ID):
-            # Using datetime components
+            # Using datetime components - enable USE_DATETIME
+            cg.add_define("USE_DATETIME")
             start_dt = await cg.get_variable(start)
             end_dt = await cg.get_variable(end)
             cg.add(var.set_night_off_datetime_start(start_dt))
