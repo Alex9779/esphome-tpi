@@ -58,9 +58,9 @@ output:
   - platform: tpi
     id: tpi_heater
     output: relay_output         # Required: ID of the binary output to control
-    period: 10s                   # Optional: TPI cycle period (default: 10s)
-    min_on_time: 1s              # Optional: Minimum time output stays on (default: 0s)
-    min_off_time: 1s             # Optional: Minimum time output stays off (default: 0s)
+    period: 30min                 # Nominal pulse period (default: 30min)
+    min_on_time: 10min           # Minimum ON time (default: 10min)
+    min_off_time: 10min          # Minimum OFF time (default: 10min)
     # Optional night off - choose ONE method:
     # Method 1: Use a binary sensor
     night_off_sensor: night_mode_switch
@@ -76,7 +76,7 @@ output:
 ### Configuration Variables
 
 - **output** (Required, ID): The ID of the binary output component that this TPI output will control
-- **period** (Optional, Time): The cycle time for TPI control. Default is `30min`. Longer periods result in fewer switches but slower response
+- **period** (Optional, Time): The nominal period used to size ON pulses. Default is `30min`. Actual cycles may be longer to preserve duty with minimum ON/OFF times
 - **min_on_time** (Optional, Time): Minimum time the output must remain ON before switching OFF. Default is `10min`. Useful for protecting relays or heating elements
 - **min_off_time** (Optional, Time): Minimum time the output must remain OFF before switching ON. Default is `10min`. Useful for protecting compressors or motors
 - **night_off_sensor** (Optional, ID): Binary sensor that when ON, forces output OFF regardless of input. Cannot be used with `night_off_start`/`night_off_end`
@@ -92,13 +92,29 @@ output:
 
 ## How It Works
 
-The TPI output divides time into fixed periods. Within each period, the output is turned ON for a duration proportional to the requested value (0.0-1.0):
+The output maintains a time balance: requested ON time (`duty * elapsed time`) minus delivered ON time.
+A positive demand starts a pulse as soon as the minimum OFF time has elapsed and any previous excess has been repaid.
+There is no minimum duty threshold and no fixed period boundary that forces an output change.
 
-- Value 0.0 = output OFF for entire period
-- Value 0.5 = output ON for 50% of the period
-- Value 1.0 = output ON for entire period
+Each pulse normally lasts `duty * period`, but at least `min_on_time`. An advanced minimum pulse can make the
+balance negative. The following OFF interval repays that excess, preserving the requested average duty over time.
+For a constant 20% demand with a 30-minute period and a 10-minute minimum ON time, the settled pattern is
+10 minutes ON followed by 40 minutes OFF. At 10%, it is 10 minutes ON followed by 90 minutes OFF.
+These are electrical output times, not measured heat delivery or valve opening times.
 
-The minimum on/off times ensure that once the output switches state, it remains in that state for at least the specified duration, preventing excessive switching.
+Demand changes are accounted for at the time they arrive. Rising demand shortens repayment pauses and may extend
+an active pulse; falling demand shortens an active pulse once its minimum ON time has elapsed. Minimum OFF time
+is always respected, including at startup. At 100%, the output stays ON after the minimum OFF time, even if some
+previous excess remains. At 0%, an active pulse finishes its minimum ON time; undelivered demand is discarded,
+but excess already delivered is retained so repeated zero/positive changes cannot request free minimum pulses.
+Non-finite input values are treated as zero.
+
+The balance is bounded to the largest of `period`, `min_on_time`, and `min_off_time` to avoid unlimited history.
+This bound and minimum switching times can cause temporary differences from requested duty after abrupt changes.
+A restart clears the balance. A configured night shutdown forces OFF immediately, overrides minimum ON time,
+and clears the balance; no demand is accumulated during shutdown. The minimum OFF time is measured from the
+actual OFF transition rather than restarted on every loop during the shutdown.
+This output balance does not freeze or reset the upstream PID integral term.
 
 ### Night Off Mode
 
@@ -175,3 +191,9 @@ climate:
 ## License
 
 MIT
+
+## Development checks
+
+Run `python3 tests/test_tpi_output.py` to compile and exercise the actual C++ component with a simulated clock
+and minimal ESPHome interface stubs. This checks scheduling logic without an embedded toolchain. A real ESPHome
+firmware build is still required before deployment.
